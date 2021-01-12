@@ -1,4 +1,5 @@
 mod types;
+use types::fcp_types;
 
 #[cfg(test)]
 mod tests {

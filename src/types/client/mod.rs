@@ -1,2 +1,2 @@
-mod types;
-pub use types::*;
+pub mod fcp_types;
+pub mod types;
