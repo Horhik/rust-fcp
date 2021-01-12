@@ -73,6 +73,15 @@ pub enum Retry {
     Forever,
     Num(i32),
 }
+impl FcpRequest for Retry {
+    fn convert(&self) -> String {
+        match *self {
+            Retry::None => "0".to_string(),
+            Retry::Forever => "-1".to_string(),
+            Retry::Num(num) => num.to_string(),
+        }
+    }
+}
 
 pub enum Persistence {
     Connection,
@@ -190,6 +199,11 @@ impl FcpRequest for u32 {
         self.to_string()
     }
 }
+impl FcpRequest for i64 {
+    fn convert(&self) -> String {
+        self.to_string()
+    }
+}
 
 impl FcpRequest for String {
     fn convert(&self) -> String {
@@ -220,11 +234,7 @@ pub fn fcp_types_unwrap<T: FcpRequest>(fcp_type: Option<&T>) -> String {
         None => String::from(""),
     }
 }
-pub fn to_fcp_unwrap<T: FcpRequest>(
-    prefix: &'static str,
-    fcp_type: Option<&T>,
-    postfix: &'static str,
-) -> String {
+pub fn to_fcp_unwrap<T: FcpRequest>(prefix: &str, fcp_type: Option<&T>, postfix: &str) -> String {
     match fcp_type {
         Some(val) => val.fcp_wrap(&prefix, &postfix),
         None => String::from(""),
