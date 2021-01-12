@@ -10,7 +10,7 @@ impl ClientHello {
 }
 
 impl FcpRequest for ClientHello {
-    fn parse(&self) -> String {
+    fn convert(&self) -> String {
         return format!(
             "ClientHello\n\
              Name={}\n\
@@ -27,10 +27,10 @@ pub struct ClientHello {
 }
 
 #[test]
-fn client_hello_parses() {
+fn client_hello_converts() {
     let hello = ClientHello::new("user name".to_string(), 2.0);
     assert_eq!(
-        hello.parse(),
+        hello.convert(),
         "ClientHello\nName=user name\nExpectedVersion=2\nEndMessage\n\n"
     );
 }
@@ -96,18 +96,18 @@ pub struct ClientPut {
     uri: String, //TODO create key type
     data_length: u64,
     filename: String,
-    content_type: Option<String>,
+    content_type: Option<&'static String>,
     identifier: Option<String>,
     verbosity: Option<VerbosityPut>,
     max_retries: Option<Retry>,
-    priority_class: Option<i8>,
+    priority_class: Option<Priority>,
     get_chk_only: Option<bool>,
     global: Option<bool>,
     dont_compress: Option<bool>,
     codecs: Option<Vec<String>>,
     client_token: Option<String>,
     persistence: Option<Persistence>,
-    target_filename: Option<Box<OsStr>>,
+    target_filename: Option<String>, // TODO create filename type (not PATH, ONLY SLASHES)
     early_encode: Option<bool>,
     upload_ffrom: Option<UploadForm>,
     target_uri: Option<String>, // cloning  uri if does not exists
@@ -123,15 +123,15 @@ pub struct ClientPut {
     metadata_threshold: Option<i64>,
     data: Option<String>, // Data fromdirect
 }
-/*
 impl FcpRequest for ClientPut {
-    fn parse(self) -> String {
+    fn convert(&self) -> String {
         format!(
             "ClientPut\n\
                  {}\
                  {}\
                  {}\
                  {}\
+                 "/*
                  {}\
                  {}\
                  {}\
@@ -158,57 +158,14 @@ impl FcpRequest for ClientPut {
                  {}\
                  EndMessage\n\
                  {}\
-                 ",
-            self.uri,
-            self.data_length,
-            self.filename,
-            self.content_type.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.verbosity.unwrap_or("".to_string()),
-            self.max_retries.unwrap_or("".to_string()),
-            self.priority_class.unwrap_or("".to_string()),
-            self.get_chk_only.unwrap_or("".to_string()),
-            self.global.unwrap_or("".to_string()),
-            self.dont_compress.unwrap_or("".to_string()),
-            self.codecs.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
-            self.identifier.unwrap_or("".to_string()),
+                 ",*/,
+            format!("URI={}\n", self.uri),
+            format!("DataLength={}\n", self.data_length),
+            format!("Filename={}\n", self.filename),
+            to_fcp_unwrap("ContentType", self.content_type, "\n")
         )
     }
-}*/
-
-impl FcpRequest for String {
-    fn parse(&self) -> String {
-        self.to_string()
-    }
 }
-
-impl FcpRequest for bool {
-    fn parse(&self) -> String {
-        if *self {
-            "true".to_string()
-        } else {
-            "false".to_string()
-        }
-    }
-}
-
 pub struct ClientGet {
     message_name: String,
     ignore_ds: Option<bool>,
