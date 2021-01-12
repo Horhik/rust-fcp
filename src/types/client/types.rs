@@ -71,3 +71,7 @@ pub enum Priority {
     F, // 5
     G, // 6
 }
+
+pub trait FcpRequest {
+    fn parse(&self) -> String;
+}

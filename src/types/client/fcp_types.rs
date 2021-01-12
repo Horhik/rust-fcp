@@ -1,4 +1,5 @@
 use super::types::*;
+
 impl ClientHello {
     fn new(name: String, exp_ver: f32) -> Self {
         ClientHello {
@@ -6,7 +7,10 @@ impl ClientHello {
             expected_version: exp_ver,
         }
     }
-    fn string(self) -> String {
+}
+
+impl FcpRequest for ClientHello {
+    fn parse(&self) -> String {
         return format!(
             "ClientHello\n\
              Name={}\n\
@@ -26,7 +30,7 @@ pub struct ClientHello {
 fn client_hello_parses() {
     let hello = ClientHello::new("user name".to_string(), 2.0);
     assert_eq!(
-        hello.string(),
+        hello.parse(),
         "ClientHello\nName=user name\nExpectedVersion=2\nEndMessage\n\n"
     );
 }
@@ -89,8 +93,9 @@ pub struct GenerateSSK {
 }
 
 pub struct ClientPut {
-    message_name: String,
     uri: String, //TODO create key type
+    data_length: u64,
+    filename: String,
     content_type: Option<String>,
     identifier: Option<String>,
     verbosity: Option<VerbosityPut>,
@@ -104,8 +109,6 @@ pub struct ClientPut {
     persistence: Option<Box<OsStr>>,
     early_encode: Option<bool>,
     upload_ffrom: Option<UploadForm>,
-    data_length: u64,
-    filename: String,
     target_uri: Option<String>, // cloning  uri if does not exists
     file_hash: Option<String>,  //TODO SHAA256 type
     binary_blob: Option<bool>,
@@ -118,6 +121,131 @@ pub struct ClientPut {
     real_time_flag: Option<String>,
     metadata_threshold: Option<i64>,
     data: Option<String>, // Data fromdirect
+}
+/*
+impl FcpRequest for ClientPut {
+    fn parse(self) -> String {
+        format!(
+            "ClientPut\n\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 EndMessage\n\
+                 {}\
+                 ",
+            self.uri,
+            self.data_length,
+            self.filename,
+            self.content_type.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.verbosity.unwrap_or("".to_string()),
+            self.max_retries.unwrap_or("".to_string()),
+            self.priority_class.unwrap_or("".to_string()),
+            self.get_chk_only.unwrap_or("".to_string()),
+            self.global.unwrap_or("".to_string()),
+            self.dont_compress.unwrap_or("".to_string()),
+            self.codecs.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+            self.identifier.unwrap_or("".to_string()),
+        )
+    }
+}*/
+
+pub fn default_unwrap<T: FcpRequest>(fcp_type: Option<&T>) -> String {
+    match fcp_type {
+        Some(val) => val.parse(),
+        None => String::from(""),
+    }
+}
+impl FcpRequest for String {
+    fn parse(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl FcpRequest for bool {
+    fn parse(&self) -> String {
+        if *self {
+            "true".to_string()
+        } else {
+            "false".to_string()
+        }
+    }
+}
+
+impl FcpRequest for VerbosityPut {
+    fn parse(&self) -> String {
+        match self {
+            VerbosityPut::SimpleProgress => 0.to_string(),
+            VerbosityPut::ExpectedHashes => 3.to_string(),
+            VerbosityPut::PutFetchable => 8.to_string(),
+            VerbosityPut::StartedCompressionANDFinishedCompression => 9.to_string(),
+        }
+    }
+}
+
+#[test]
+fn is_berbosity_put_parsing() {
+    assert_eq!(default_unwrap::<VerbosityPut>(None), "".to_string());
+    assert_eq!(
+        default_unwrap::<VerbosityPut>(Some(&VerbosityPut::SimpleProgress)),
+        "0".to_string()
+    );
+    assert_eq!(
+        default_unwrap::<VerbosityPut>(Some(&VerbosityPut::ExpectedHashes)),
+        "3".to_string()
+    );
+    assert_eq!(
+        default_unwrap::<VerbosityPut>(Some(&VerbosityPut::PutFetchable)),
+        "8".to_string()
+    );
+    assert_eq!(
+        default_unwrap::<VerbosityPut>(Some(
+            &VerbosityPut::StartedCompressionANDFinishedCompression
+        )),
+        "9".to_string()
+    );
 }
 
 pub struct ClientGet {
