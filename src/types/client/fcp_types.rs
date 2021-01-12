@@ -106,7 +106,8 @@ pub struct ClientPut {
     dont_compress: Option<bool>,
     codecs: Option<Vec<String>>,
     client_token: Option<String>,
-    persistence: Option<Box<OsStr>>,
+    persistence: Option<Persistence>,
+    target_filename: Option<Box<OsStr>>,
     early_encode: Option<bool>,
     upload_ffrom: Option<UploadForm>,
     target_uri: Option<String>, // cloning  uri if does not exists
@@ -192,12 +193,6 @@ impl FcpRequest for ClientPut {
     }
 }*/
 
-pub fn default_unwrap<T: FcpRequest>(fcp_type: Option<&T>) -> String {
-    match fcp_type {
-        Some(val) => val.parse(),
-        None => String::from(""),
-    }
-}
 impl FcpRequest for String {
     fn parse(&self) -> String {
         self.to_string()
@@ -212,40 +207,6 @@ impl FcpRequest for bool {
             "false".to_string()
         }
     }
-}
-
-impl FcpRequest for VerbosityPut {
-    fn parse(&self) -> String {
-        match self {
-            VerbosityPut::SimpleProgress => 0.to_string(),
-            VerbosityPut::ExpectedHashes => 3.to_string(),
-            VerbosityPut::PutFetchable => 8.to_string(),
-            VerbosityPut::StartedCompressionANDFinishedCompression => 9.to_string(),
-        }
-    }
-}
-
-#[test]
-fn is_berbosity_put_parsing() {
-    assert_eq!(default_unwrap::<VerbosityPut>(None), "".to_string());
-    assert_eq!(
-        default_unwrap::<VerbosityPut>(Some(&VerbosityPut::SimpleProgress)),
-        "0".to_string()
-    );
-    assert_eq!(
-        default_unwrap::<VerbosityPut>(Some(&VerbosityPut::ExpectedHashes)),
-        "3".to_string()
-    );
-    assert_eq!(
-        default_unwrap::<VerbosityPut>(Some(&VerbosityPut::PutFetchable)),
-        "8".to_string()
-    );
-    assert_eq!(
-        default_unwrap::<VerbosityPut>(Some(
-            &VerbosityPut::StartedCompressionANDFinishedCompression
-        )),
-        "9".to_string()
-    );
 }
 
 pub struct ClientGet {
