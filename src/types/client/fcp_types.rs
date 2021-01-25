@@ -88,8 +88,60 @@ pub struct GetNode {
 }
 
 pub struct GenerateSSK {
-    message_name: String,
-    identifier: Option<String>,
+    identifier: Option<&'static String>,
+}
+
+impl FcpRequest for GenerateSSK {
+    fn convert(&self) -> String {
+        let identifier = to_fcp_unwrap("Identifier=", self.identifier, "\n");
+        format!(
+            "GenerateSSK\n\
+                 {}\
+                 EndMessage\n\n",
+            identifier
+        )
+    }
+}
+
+pub struct SSK {
+    sign_key: String,
+    decrypt_key: String,
+    settings: String,
+}
+
+pub struct USK {
+    ssk: SSK,
+    index: i32,
+}
+
+pub struct SSKKeypair {
+    insert_uri: SSK,
+    request_uri: SSK,
+    identifier: String,
+}
+
+trait FcpParser<T> {
+    fn parse(palin: String) -> T;
+}
+impl FcpParser<SSK> for SSK {
+    fn parse(plain: String) -> SSK {
+        SSK {
+            sign_key: "DF".to_string(),
+            decrypt_key: "dfs".to_string(),
+            settings: "DFS".to_string(),
+        }
+    }
+}
+
+impl SSKKeypair {
+    /*
+    fn parse(plain: String) -> Self {
+        let lines = plain.lines();
+        let insert_uri = lines.next().unwrap_or("");
+        let request_uri = lines.next().unwrap_or("");
+        let identifier = lines.next().unwrap_or("");
+    }
+    */
 }
 
 pub struct ClientPut {
