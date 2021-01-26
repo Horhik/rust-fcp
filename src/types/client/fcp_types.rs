@@ -1,4 +1,5 @@
 use super::types::*;
+use regex::Regex;
 
 impl ClientHello {
     fn new(name: String, exp_ver: f32) -> Self {
@@ -103,12 +104,13 @@ impl FcpRequest for GenerateSSK {
     }
 }
 
+#[derive(Debug, PartialEq)]
 pub struct SSK {
     sign_key: String,
     decrypt_key: String,
-    settings: String,
+    settings: Option<String>,
 }
-
+#[derive(Debug, PartialEq)]
 pub struct USK {
     ssk: SSK,
     index: i32,
@@ -121,16 +123,53 @@ pub struct SSKKeypair {
 }
 
 trait FcpParser<T> {
-    fn parse(palin: String) -> T;
+    fn parse(palin: &str) -> Option<T>;
 }
 impl FcpParser<SSK> for SSK {
-    fn parse(plain: String) -> SSK {
-        SSK {
-            sign_key: "DF".to_string(),
-            decrypt_key: "dfs".to_string(),
-            settings: "DFS".to_string(),
+    fn parse(plain: &str) -> Option<SSK> {
+        let reg1 = Regex::new(r".*\w{3}@(.*),(.*),(.*)/?$?").unwrap();
+        let reg2 = Regex::new(r".*\w{3}@(.*),(.*)/$").unwrap();
+        match reg1.captures(plain) {
+            Some(reg) => Some(SSK {
+                sign_key: reg[1].to_string(),
+                decrypt_key: reg[2].to_string(),
+                settings: Some(reg[3].to_string()),
+            }),
+            None => match reg2.captures(plain) {
+                Some(reg) => Some(SSK {
+                    sign_key: reg[1].to_string(),
+                    decrypt_key: reg[2].to_string(),
+                    settings: None,
+                }),
+                None => None,
+            },
         }
     }
+}
+
+#[test]
+fn is_ssk_parsing() {
+    // SSK@AKTTKG6YwjrHzWo67laRcoPqibyiTdyYufjVg54fBlWr,AwUSJG5ZS-FDZTqnt6skTzhxQe08T-fbKXj8aEHZsXM/
+    // SSK@BnHXXv3Fa43w~~iz1tNUd~cj4OpUuDjVouOWZ5XlpX0,AwUSJG5ZS-FDZTqnt6skTzhxQe08T-fbKXj8aEHZsXM,AQABAAE
+    let ssk = SSK::parse("SSK@AKTTKG6YwjrHzWo67laRcoPqibyiTdyYufjVg54fBlWr,AwUSJG5ZS-FDZTqnt6skTzhxQe08T-fbKXj8aEHZsXM/").unwrap();
+    let ssk2 = SSK::parse("SSK@BnHXXv3Fa43w~~iz1tNUd~cj4OpUuDjVouOWZ5XlpX0,AwUSJG5ZS-FDZTqnt6skTzhxQe08T-fbKXj8aEHZsXM,AQABAAE").unwrap();
+
+    assert_eq!(
+        ssk,
+        SSK {
+            sign_key: "AKTTKG6YwjrHzWo67laRcoPqibyiTdyYufjVg54fBlWr".to_string(),
+            decrypt_key: "AwUSJG5ZS-FDZTqnt6skTzhxQe08T-fbKXj8aEHZsXM".to_string(),
+            settings: None
+        }
+    );
+    assert_eq!(
+        ssk2,
+        SSK {
+            sign_key: "BnHXXv3Fa43w~~iz1tNUd~cj4OpUuDjVouOWZ5XlpX0".to_string(),
+            decrypt_key: "AwUSJG5ZS-FDZTqnt6skTzhxQe08T-fbKXj8aEHZsXM".to_string(),
+            settings: Some("AQABAAE".to_string()),
+        }
+    );
 }
 
 impl SSKKeypair {
