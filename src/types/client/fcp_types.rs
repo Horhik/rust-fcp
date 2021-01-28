@@ -116,10 +116,64 @@ pub struct USK {
     index: i32,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct SSKKeypair {
     insert_uri: SSK,
     request_uri: SSK,
     identifier: String,
+}
+
+impl FcpParser<SSKKeypair> for SSKKeypair {
+    fn parse(plain: &str) -> Option<SSKKeypair> {
+        let reg = Regex::new(
+            r"^SSKKeypair\nIdentifier=(.*)\nInsertURI=(.*)\nRequestURI=(.*)\nEndMessage",
+        )
+        .unwrap();
+        println!("{:?}", reg);
+        let res = reg.captures(plain).unwrap();
+        let identifier = res[1].to_string();
+        let insert_uri = SSK::parse(&res[2]).unwrap();
+        let request_uri = SSK::parse(&res[3]).unwrap();
+        return Some(SSKKeypair {
+            insert_uri: insert_uri,
+            request_uri: request_uri,
+            identifier: identifier,
+        });
+    }
+}
+
+//SSK@Rgt0qM8D24DltliV2-JE9tYLcrgGAKeDwkz41I3JBPs,p~c8c7FXcJjhcf2vA-Xm0Mjyw1o~xn7L2-T8zlBA1IU,AQECAAE/
+//SSK@uKTwaQIXNgsCYKLekb51t3pZ6A~PTP7nuCxRVZEMtCQ,p~c8c7FXcJjhcf2vA-Xm0Mjyw1o~xn7L2-T8zlBA1IU,AQACAAE/
+/*
+ SSKKeypair
+ Identifier=34
+ InsertURI=SSK@Rgt0qM8D24DltliV2-JE9tYLcrgGAKeDwkz41I3JBPs,p~c8c7FXcJjhcf2vA-Xm0Mjyw1o~xn7L2-T8zlBA1IU,AQECAAE/
+ RequestURI=SSK@uKTwaQIXNgsCYKLekb51t3pZ6A~PTP7nuCxRVZEMtCQ,p~c8c7FXcJjhcf2vA-Xm0Mjyw1o~xn7L2-T8zlBA1IU,AQACAAE/
+ EndMessage
+*/
+#[test]
+fn is_keypair_parsing() {
+    let parsed = SSKKeypair::parse("SSKKeypair\n\
+                                    Identifier=name\n\
+                                    InsertURI=SSK@Rgt0qM8D24DltliV2-JE9tYLcrgGAKeDwkz41I3JBPs,p~c8c7FXcJjhcf2vA-Xm0Mjyw1o~xn7L2-T8zlBA1IU,AQECAAE/\n\
+                                    RequestURI=SSK@uKTwaQIXNgsCYKLekb51t3pZ6A~PTP7nuCxRVZEMtCQ,p~c8c7FXcJjhcf2vA-Xm0Mjyw1o~xn7L2-T8zlBA1IU,AQACAAE/\n\
+                                    EndMessage\n");
+    assert_eq!(
+        SSKKeypair {
+            insert_uri: SSK {
+                sign_key: "Rgt0qM8D24DltliV2-JE9tYLcrgGAKeDwkz41I3JBPs".to_string(),
+                decrypt_key: "p~c8c7FXcJjhcf2vA-Xm0Mjyw1o~xn7L2-T8zlBA1IU".to_string(),
+                settings: Some("AQECAAE".to_string())
+            },
+            request_uri: SSK {
+                sign_key: "uKTwaQIXNgsCYKLekb51t3pZ6A~PTP7nuCxRVZEMtCQ".to_string(),
+                decrypt_key: "p~c8c7FXcJjhcf2vA-Xm0Mjyw1o~xn7L2-T8zlBA1IU".to_string(),
+                settings: Some("AQACAAE".to_string()),
+            },
+            identifier: "name".to_string(),
+        },
+        parsed.unwrap()
+    )
 }
 
 trait FcpParser<T> {
@@ -127,8 +181,9 @@ trait FcpParser<T> {
 }
 impl FcpParser<SSK> for SSK {
     fn parse(plain: &str) -> Option<SSK> {
-        let reg1 = Regex::new(r".*\w{3}@(.*),(.*),(.*)/?$?").unwrap();
-        let reg2 = Regex::new(r".*\w{3}@(.*),(.*)/$").unwrap();
+        let reg1 = Regex::new(r".*?SSK@([a-zA-z0-9~-]*),([a-zA-Z0-9-~]*),([A-Z]*)").unwrap();
+        //let reg2 = Regex::new(r"^.*?\w{3}@(.*),(.*)/").unwrap();
+        let reg2 = Regex::new(r".*?SSK@([a-zA-z0-9~-]*),([a-zA-Z0-9-~]*)").unwrap();
         match reg1.captures(plain) {
             Some(reg) => Some(SSK {
                 sign_key: reg[1].to_string(),
@@ -170,6 +225,26 @@ fn is_ssk_parsing() {
             settings: Some("AQABAAE".to_string()),
         }
     );
+}
+
+impl FcpRequest for SSK {
+    fn convert(&self) -> String {
+        unimplemented!();
+    }
+}
+
+#[test]
+fn is_ssk_converting() {
+    assert_eq!(SSK {
+            sign_key: "AKTTKG6YwjrHzWo67laRcoPqibyiTdyYufjVg54fBlWr".to_string(),
+            decrypt_key: "AwUSJG5ZS-FDZTqnt6skTzhxQe08T-fbKXj8aEHZsXM".to_string(),
+            settings: None
+        }.convert(), "SSK@BnHXXv3Fa43w~~iz1tNUd~cj4OpUuDjVouOWZ5XlpX0,AwUSJG5ZS-FDZTqnt6skTzhxQe08T-fbKXj8aEHZsXM,AQABAAE");
+    assert_eq!(SSK {
+            sign_key: "BnHXXv3Fa43w~~iz1tNUd~cj4OpUuDjVouOWZ5XlpX0".to_string(),
+            decrypt_key: "AwUSJG5ZS-FDZTqnt6skTzhxQe08T-fbKXj8aEHZsXM".to_string(),
+            settings: Some("AQABAAE".to_string()),
+        }.convert(), "SSK@BnHXXv3Fa43w~~iz1tNUd~cj4OpUuDjVouOWZ5XlpX0,AwUSJG5ZS-FDZTqnt6skTzhxQe08T-fbKXj8aEHZsXM,AQABAAE")
 }
 
 impl SSKKeypair {
