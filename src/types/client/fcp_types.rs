@@ -229,7 +229,12 @@ fn is_ssk_parsing() {
 
 impl FcpRequest for SSK {
     fn convert(&self) -> String {
-        unimplemented!();
+        let mut settings: String = "".to_string();
+        match &self.settings {
+            Some(res) => settings = format!(",{}", res),
+            _ => {}
+        }
+        format!("SSK@{},{}{}", self.sign_key, self.decrypt_key, settings)
     }
 }
 
@@ -239,7 +244,7 @@ fn is_ssk_converting() {
             sign_key: "AKTTKG6YwjrHzWo67laRcoPqibyiTdyYufjVg54fBlWr".to_string(),
             decrypt_key: "AwUSJG5ZS-FDZTqnt6skTzhxQe08T-fbKXj8aEHZsXM".to_string(),
             settings: None
-        }.convert(), "SSK@BnHXXv3Fa43w~~iz1tNUd~cj4OpUuDjVouOWZ5XlpX0,AwUSJG5ZS-FDZTqnt6skTzhxQe08T-fbKXj8aEHZsXM,AQABAAE");
+        }.convert(), "SSK@AKTTKG6YwjrHzWo67laRcoPqibyiTdyYufjVg54fBlWr,AwUSJG5ZS-FDZTqnt6skTzhxQe08T-fbKXj8aEHZsXM");
     assert_eq!(SSK {
             sign_key: "BnHXXv3Fa43w~~iz1tNUd~cj4OpUuDjVouOWZ5XlpX0".to_string(),
             decrypt_key: "AwUSJG5ZS-FDZTqnt6skTzhxQe08T-fbKXj8aEHZsXM".to_string(),
