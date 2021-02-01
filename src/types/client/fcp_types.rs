@@ -268,9 +268,9 @@ pub struct ClientPut {
     data_length: u64,
     filename: String,
     content_type: Option<&'static String>,
-    identifier: Option<&'static String>,
+    identifier: String,
     verbosity: Option<&'static VerbosityPut>,
-    max_retries: Option<&'static Retry>,
+    max_retries: Option<Retry>,
     priority_class: Option<&'static Priority>,
     get_chk_only: Option<&'static bool>,
     global: Option<&'static bool>,
@@ -297,7 +297,7 @@ pub struct ClientPut {
 impl FcpRequest for ClientPut {
     fn convert(&self) -> String {
         let content_type = to_fcp_unwrap("ContentType=", self.content_type, "\n");
-        let identifier = to_fcp_unwrap("Identifier=", self.identifier, "\n");
+        let identifier = format!("Identifier={}\n", self.identifier);
         let verbosity = to_fcp_unwrap("=", self.verbosity, "\n");
         let max_retries = to_fcp_unwrap("=", self.max_retries, "\n");
         let priority_class = to_fcp_unwrap("=", self.priority_class, "\n");
@@ -390,6 +390,47 @@ impl FcpRequest for ClientPut {
             // to_fcp_unwrap("Verbosity", self.verbosity, "\n"),
         )
     }
+}
+
+impl ClientPut {
+    fn new_def(uri: &str, data_length: u64, filename: &str, identifier: &str) -> ClientPut {
+        // ClientPut {
+        //     uri: uri.to_string(),
+        //     data_length: data_length,
+        //     filename: filename.to_string(),
+        //     identifier: identifier.to_string(),
+        //     content_type: Some(&"text/json".to_string()),
+        //     verbosity: Some(&VerbosityPut::SimpleProgress),
+        //     max_retries: Some(Retry::Num(50)),
+        // }
+        unimplemented!();
+    }
+}
+
+#[test]
+fn is_client_put_converting() {
+    let fin = "ClientPut\n\
+                 URI=CHK@\n\
+                 Metadata.ContentType=text/html\n\
+                 Identifier=My Test Insert\n\
+                 Verbosity=0\n\
+                 MaxRetries=10\n\
+                 PriorityClass=1\n\
+                 GetCHKOnly=false\n\
+                 Global=false\n\
+                 DontCompress=false\n\
+                 Codecs=LZMA\n\
+                 ClientToken=Hello!!!\n\
+                 UploadFrom=disk\n\
+                 Filename=/home/toad/something.html\n\
+                 TargetFilename=me.html\n\
+                 FileHash=Base64String\n\
+                 BinaryBlob=false\n\
+                 CompatibilityMode=COMPAT_CURRENT\n\
+                 LocalRequestOnly=false\n\
+                 EndMessage\n\n";
+    let input = ClientPut::new_def("uri", 34, "lol", "name");
+    unimplemented!();
 }
 pub struct ClientGet {
     message_name: String,
