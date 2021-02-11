@@ -75,7 +75,7 @@ pub enum Retry {
 }
 impl FcpRequest for Retry {
     fn convert(&self) -> String {
-        match *self {
+        match self {
             Retry::None => "0".to_string(),
             Retry::Forever => "-1".to_string(),
             Retry::Num(num) => num.to_string(),
@@ -210,6 +210,11 @@ impl FcpRequest for String {
         self.to_string()
     }
 }
+impl FcpRequest for &String {
+    fn convert(&self) -> String {
+        self.to_string()
+    }
+}
 
 impl FcpRequest for bool {
     fn convert(&self) -> String {
@@ -234,7 +239,7 @@ pub fn fcp_types_unwrap<T: FcpRequest>(fcp_type: Option<&T>) -> String {
         None => String::from(""),
     }
 }
-pub fn to_fcp_unwrap<T: FcpRequest>(prefix: &str, fcp_type: Option<&T>, postfix: &str) -> String {
+pub fn to_fcp_unwrap<T: FcpRequest>(prefix: &str, fcp_type: &Option<T>, postfix: &str) -> String {
     match fcp_type {
         Some(val) => val.fcp_wrap(&prefix, &postfix),
         None => String::from(""),

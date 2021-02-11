@@ -89,12 +89,12 @@ pub struct GetNode {
 }
 
 pub struct GenerateSSK {
-    identifier: Option<&'static String>,
+    identifier: Option<String>,
 }
 
 impl FcpRequest for GenerateSSK {
     fn convert(&self) -> String {
-        let identifier = to_fcp_unwrap("Identifier=", self.identifier, "\n");
+        let identifier = to_fcp_unwrap("Identifier=", &self.identifier, "\n");
         format!(
             "GenerateSSK\n\
                  {}\
@@ -264,66 +264,66 @@ impl SSKKeypair {
 }
 
 pub struct ClientPut {
-    uri: String, //TODO create key type
-    data_length: u64,
+    uri: SSK, //TODO create key type
+    data_length: usize,
     filename: String,
-    content_type: Option<&'static String>,
+    content_type: Option<String>,
     identifier: String,
-    verbosity: Option<&'static VerbosityPut>,
+    verbosity: Option<VerbosityPut>,
     max_retries: Option<Retry>,
-    priority_class: Option<&'static Priority>,
-    get_chk_only: Option<&'static bool>,
-    global: Option<&'static bool>,
-    dont_compress: Option<&'static bool>,
-    codecs: Option<&'static String>, // TODO turn into vec and add implementation
-    client_token: Option<&'static String>,
-    persistence: Option<&'static Persistence>,
-    target_filename: Option<&'static String>, // TODO create filename type (&'static not PATH, ONLY SLASHES)
-    early_encode: Option<&'static bool>,
-    upload_ffrom: Option<&'static UploadForm>,
-    target_uri: Option<&'static String>, // cloning  uri if does not exists
-    file_hash: Option<&'static String>,  //TODO SHAA256 type
-    binary_blob: Option<&'static bool>,
-    fork_on_cacheable: Option<&'static bool>,
-    extra_inserts_single_block: Option<&'static u32>,
-    extra_inserts_splitfile_header_block: Option<&'static u32>,
-    compatibility_mode: Option<&'static String>, //TODO create enum???
-    local_request_only: Option<&'static bool>,
-    override_splitfile_crypto_key: Option<&'static String>, //key in hex
-    real_time_flag: Option<&'static String>,
-    metadata_threshold: Option<&'static i64>,
-    data: Option<&'static String>, // Data fromdirect
+    priority_class: Option<Priority>,
+    get_chk_only: Option<bool>,
+    global: Option<bool>,
+    dont_compress: Option<bool>,
+    codecs: Option<String>, // TODO turn into vec and add implementation
+    client_token: Option<String>,
+    persistence: Option<Persistence>,
+    target_filename: Option<String>, // TODO create filename type ( not PATH, ONLY SLASHES)
+    early_encode: Option<bool>,
+    upload_from: Option<UploadForm>,
+    target_uri: Option<String>, // cloning  uri if does not exists
+    file_hash: Option<String>,  //TODO SHAA256 type
+    binary_blob: Option<bool>,
+    fork_on_cacheable: Option<bool>,
+    extra_inserts_single_block: Option<u32>,
+    extra_inserts_splitfile_header_block: Option<u32>,
+    compatibility_mode: Option<String>, //TODO create enum???
+    local_request_only: Option<bool>,
+    override_splitfile_crypto_key: Option<String>, //key in hex
+    real_time_flag: Option<String>,
+    metadata_threshold: Option<i64>,
+    data: Option<String>, // Data fromdirect
 }
 impl FcpRequest for ClientPut {
     fn convert(&self) -> String {
-        let content_type = to_fcp_unwrap("ContentType=", self.content_type, "\n");
-        let identifier = format!("Identifier={}\n", self.identifier);
-        let verbosity = to_fcp_unwrap("=", self.verbosity, "\n");
-        let max_retries = to_fcp_unwrap("=", self.max_retries, "\n");
-        let priority_class = to_fcp_unwrap("=", self.priority_class, "\n");
-        let get_chk_only = to_fcp_unwrap("=", self.get_chk_only, "\n");
-        let global = to_fcp_unwrap("=", self.global, "\n");
-        let dont_compress = to_fcp_unwrap("=", self.dont_compress, "\n");
-        let codecs = to_fcp_unwrap("=", self.codecs, "\n");
-        let client_token = to_fcp_unwrap("=", self.client_token, "\n");
-        let persistence = to_fcp_unwrap("=", self.persistence, "\n");
-        let target_filename = to_fcp_unwrap("=", self.target_filename, "\n");
-        let early_encode = to_fcp_unwrap("=", self.early_encode, "\n");
-        let upload_ffrom = to_fcp_unwrap("=", self.upload_ffrom, "\n");
-        let target_uri = to_fcp_unwrap("=", self.target_uri, "\n");
-        let file_hash = to_fcp_unwrap("=", self.file_hash, "\n");
-        let binary_blob = to_fcp_unwrap("=", self.binary_blob, "\n");
-        let fork_on_cacheable = to_fcp_unwrap("=", self.fork_on_cacheable, "\n");
-        let extra_inserts_single_block = to_fcp_unwrap("=", self.extra_inserts_single_block, "\n");
+        let content_type = to_fcp_unwrap("ContentType=", &self.content_type, "\n");
+        let identifier = format!("Identifier={}\n", &self.identifier);
+        let verbosity = to_fcp_unwrap("Verbosity=", &self.verbosity, "\n");
+        let max_retries = to_fcp_unwrap("MaxRetries=", &self.max_retries, "\n");
+        let priority_class = to_fcp_unwrap("PriorityClass=", &self.priority_class, "\n");
+        let get_chk_only = to_fcp_unwrap("GetCHKOnly=", &self.get_chk_only, "\n");
+        let global = to_fcp_unwrap("Global=", &self.global, "\n");
+        let dont_compress = to_fcp_unwrap("DontCompress=", &self.dont_compress, "\n");
+        let codecs = to_fcp_unwrap("Codecs=", &self.codecs, "\n");
+        let client_token = to_fcp_unwrap("ClientToken=", &self.client_token, "\n");
+        let persistence = to_fcp_unwrap("Persistence=", &self.persistence, "\n");
+        let target_filename = to_fcp_unwrap("TargetFilename=", &self.target_filename, "\n");
+        let early_encode = to_fcp_unwrap("EarlyEncode=", &self.early_encode, "\n");
+        let upload_from = to_fcp_unwrap("UploadFrom=", &self.upload_from, "\n");
+        let target_uri = to_fcp_unwrap("TargetURI=", &self.target_uri, "\n");
+        let file_hash = to_fcp_unwrap("FileHash=", &self.file_hash, "\n");
+        let binary_blob = to_fcp_unwrap("=", &self.binary_blob, "\n");
+        let fork_on_cacheable = to_fcp_unwrap("=", &self.fork_on_cacheable, "\n");
+        let extra_inserts_single_block = to_fcp_unwrap("=", &self.extra_inserts_single_block, "\n");
         let extra_inserts_splitfile_header_block =
-            to_fcp_unwrap("=", self.extra_inserts_splitfile_header_block, "\n");
-        let compatibility_mode = to_fcp_unwrap("=", self.compatibility_mode, "\n");
-        let local_request_only = to_fcp_unwrap("=", self.local_request_only, "\n");
+            to_fcp_unwrap("=", &self.extra_inserts_splitfile_header_block, "\n");
+        let compatibility_mode = to_fcp_unwrap("=", &self.compatibility_mode, "\n");
+        let local_request_only = to_fcp_unwrap("LocalRequestOnly=", &self.local_request_only, "\n");
         let override_splitfile_crypto_key =
-            to_fcp_unwrap("=", self.override_splitfile_crypto_key, "\n");
-        let real_time_flag = to_fcp_unwrap("=", self.real_time_flag, "\n");
-        let metadata_threshold = to_fcp_unwrap("=", self.metadata_threshold, "\n");
-        let data = to_fcp_unwrap("=", self.data, "\n");
+            to_fcp_unwrap("=", &self.override_splitfile_crypto_key, "\n");
+        let real_time_flag = to_fcp_unwrap("=", &self.real_time_flag, "\n");
+        let metadata_threshold = to_fcp_unwrap("=", &self.metadata_threshold, "\n");
+        let data = to_fcp_unwrap("", &self.data, "\n");
 
         format!(
             "ClientPut\n\
@@ -358,7 +358,7 @@ impl FcpRequest for ClientPut {
                  EndMessage\n\
                  {}\
                  ",
-            format!("URI={}\n", self.uri),
+            format!("URI={}\n", self.uri.convert()),
             format!("DataLength={}\n", self.data_length),
             format!("Filename={}\n", self.filename),
             content_type,
@@ -374,7 +374,7 @@ impl FcpRequest for ClientPut {
             persistence,
             target_filename,
             early_encode,
-            upload_ffrom,
+            upload_from,
             target_uri,
             file_hash,
             binary_blob,
@@ -393,44 +393,64 @@ impl FcpRequest for ClientPut {
 }
 
 impl ClientPut {
-    fn new_def(uri: &str, data_length: u64, filename: &str, identifier: &str) -> ClientPut {
-        // ClientPut {
-        //     uri: uri.to_string(),
-        //     data_length: data_length,
-        //     filename: filename.to_string(),
-        //     identifier: identifier.to_string(),
-        //     content_type: Some(&"text/json".to_string()),
-        //     verbosity: Some(&VerbosityPut::SimpleProgress),
-        //     max_retries: Some(Retry::Num(50)),
-        // }
-        unimplemented!();
+    fn new_default(uri: SSK, filename: &str, identifier: &str, data: &str) -> ClientPut {
+        ClientPut {
+            uri: uri,
+            data_length: data.len(),
+            filename: filename.to_string(),
+            identifier: identifier.to_string(),
+            content_type: Some("text/json".to_string()),
+            verbosity: Some(VerbosityPut::SimpleProgress),
+            max_retries: Some(Retry::Num(50)),
+            priority_class: None,
+            get_chk_only: None,
+            global: None,
+            dont_compress: None,
+            codecs: None,
+            client_token: None,
+            persistence: None,
+            target_filename: None,
+            early_encode: None,
+            upload_from: None,
+            target_uri: None,
+            file_hash: None,
+            binary_blob: None,
+            fork_on_cacheable: None,
+            extra_inserts_single_block: None,
+            extra_inserts_splitfile_header_block: None,
+            compatibility_mode: None,
+            local_request_only: None,
+            override_splitfile_crypto_key: None,
+            real_time_flag: None,
+            metadata_threshold: None,
+            data: Some(data.to_string()),
+        }
     }
 }
 
 #[test]
 fn is_client_put_converting() {
     let fin = "ClientPut\n\
-                 URI=CHK@\n\
-                 Metadata.ContentType=text/html\n\
-                 Identifier=My Test Insert\n\
+                 URI=SSK@BnHXXv3Fa43w~~iz1tNUd~cj4OpUuDjVouOWZ5XlpX0,AwUSJG5ZS-FDZTqnt6skTzhxQe08T-fbKXj8aEHZsXM,AQABAAE\n\
+                 DataLength=8\n\
+                 Filename=thefile\n\
+                 ContentType=text/json\n\
+                 Identifier=myidentifier\n\
                  Verbosity=0\n\
-                 MaxRetries=10\n\
-                 PriorityClass=1\n\
-                 GetCHKOnly=false\n\
-                 Global=false\n\
-                 DontCompress=false\n\
-                 Codecs=LZMA\n\
-                 ClientToken=Hello!!!\n\
-                 UploadFrom=disk\n\
-                 Filename=/home/toad/something.html\n\
-                 TargetFilename=me.html\n\
-                 FileHash=Base64String\n\
-                 BinaryBlob=false\n\
-                 CompatibilityMode=COMPAT_CURRENT\n\
-                 LocalRequestOnly=false\n\
-                 EndMessage\n\n";
-    let input = ClientPut::new_def("uri", 34, "lol", "name");
-    unimplemented!();
+                 MaxRetries=50\n\
+                 EndMessage\n\
+                 Hey jude\n";
+    let input = ClientPut::new_default(
+        SSK {
+            sign_key: "BnHXXv3Fa43w~~iz1tNUd~cj4OpUuDjVouOWZ5XlpX0".to_string(),
+            decrypt_key: "AwUSJG5ZS-FDZTqnt6skTzhxQe08T-fbKXj8aEHZsXM".to_string(),
+            settings: Some("AQABAAE".to_string()),
+        },
+        "thefile",
+        "myidentifier",
+        "Hey jude",
+    );
+    assert_eq!(fin, input.convert());
 }
 pub struct ClientGet {
     message_name: String,
