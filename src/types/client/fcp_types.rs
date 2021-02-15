@@ -452,6 +452,7 @@ fn is_client_put_converting() {
     );
     assert_eq!(fin, input.convert());
 }
+
 pub struct ClientGet {
     message_name: String,
     ignore_ds: Option<bool>,
@@ -460,6 +461,7 @@ pub struct ClientGet {
     identifier: String,
     verbosity: Option<VerbosityGet>,
     max_size: Option<u32>,
+    max_temp_size: Option<u32>,
     max_retries: Option<NumOrNone>,
     priority_class: Option<Priority>,
     persistence: Option<Persistence>,
@@ -472,7 +474,79 @@ pub struct ClientGet {
     filename: Option<Box<Path>>,
     temp_filename: Option<Box<Path>>,
     real_time_flag: Option<bool>,
-    initial_metadata_data_length: u64,
+    initial_metadata_data_length: Option<u64>,
+}
+
+/*
+ClientGet
+IgnoreDS=false
+DSOnly=false
+URI=KSK@sample.txt
+Identifier=Request Number One
+Verbosity=0
+ReturnType=direct
+MaxSize=100
+MaxTempSize=1000
+MaxRetries=100
+PriorityClass=1
+Persistence=reboot
+ClientToken=hello
+Global=false
+BinaryBlob=false
+FilterData=true
+EndMessage
+*/
+
+impl FcpRequest for ClientGet {
+    fn convert(&self) -> String {
+        unimplemented!();
+        format!(
+            "ClientGet\n\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 {}\
+                 EndMessage\n\n",
+            to_fcp_unwrap("IgnoreDS=", &self.ignore_ds, "\n"),
+            to_fcp_unwrap("DSonly=", &self.ds_only, "\n"),
+            format!("URI={}\n", &self.uri),
+            format!("Identifier={}\n", &self.identifier),
+            to_fcp_unwrap("Verbosity=", &self.verbosity, "\n"),
+            to_fcp_unwrap("ReturnType=", &self.return_type, "\n"),
+            to_fcp_unwrap("MaxSize=", &self.max_size, "\n"),
+            to_fcp_unwrap("MaxTempSize=", &self.max_temp_size, "\n"),
+            to_fcp_unwrap("MaxRetries=", &self.max_retries, "\n"),
+            to_fcp_unwrap("PriorityClass=", &self.priority_class, "\n"),
+            to_fcp_unwrap("Persistence=", &self.persistence, "\n"),
+            to_fcp_unwrap("ClientToken=", &self.client_token, "\n"),
+            to_fcp_unwrap("Global=", &self.global, "\n"),
+            to_fcp_unwrap("BinaryBlob=", &self.binary_blob, "\n"),
+            to_fcp_unwrap("FilterData=", &self.filter_data, "\n"),
+            to_fcp_unwrap("AllowedMIMETypes =", &self.allowed_mime_types, "\n"),
+            to_fcp_unwrap("Filename=", &self.filename, "\n"),
+            to_fcp_unwrap("RealTimeFlag=", &self.real_time_flag, "\n"),
+            to_fcp_unwrap(
+                "InitialMetadata.DataLength=",
+                &self.initial_metadata_data_length,
+                "\n"
+            ),
+        )
+    }
 }
 
 pub struct Disconnect {

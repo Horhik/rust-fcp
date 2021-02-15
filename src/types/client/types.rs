@@ -68,6 +68,12 @@ pub enum VerbosityGet {
     ExpectedDataLength,
 }
 
+impl FcpRequest for VerbosityGet {
+    fn convert(&self) -> String {
+        unimplemented!();
+    }
+}
+
 pub enum Retry {
     None,
     Forever,
@@ -154,9 +160,31 @@ pub enum ReturnType {
     Disk,
 }
 
+impl FcpRequest for ReturnType {
+    fn convert(&self) -> String {
+        unimplemented!();
+    }
+}
+
 pub enum NumOrNone {
     None,
     Num(u32),
+}
+impl FcpRequest for NumOrNone {
+    fn convert(&self) -> String {
+        unimplemented!();
+    }
+}
+
+impl FcpRequest for Vec<String> {
+    fn convert(&self) -> String {
+        unimplemented!();
+    }
+}
+impl FcpRequest for Box<Path> {
+    fn convert(&self) -> String {
+        unimplemented!();
+    }
 }
 
 pub enum Priority {
@@ -204,7 +232,11 @@ impl FcpRequest for i64 {
         self.to_string()
     }
 }
-
+impl FcpRequest for u64 {
+    fn convert(&self) -> String {
+        self.to_string()
+    }
+}
 impl FcpRequest for String {
     fn convert(&self) -> String {
         self.to_string()
