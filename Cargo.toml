@@ -3,6 +3,9 @@ name = "fcpv2"
 version = "0.0.1"
 authors = ["Horhik <horhik@tuta.io>"]
 edition = "2018"
+license = "GPL-2.0"
+license-file = "LICENSE"
+description = "Implementation of FCPv2 freenet protocol"
 
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
