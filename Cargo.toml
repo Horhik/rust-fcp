@@ -1,5 +1,5 @@
 [package]
-name = "FCPv2"
+name = "fcpv2"
 version = "0.0.1"
 authors = ["Horhik <horhik@tuta.io>"]
 edition = "2018"

@@ -2,7 +2,7 @@ use super::types::*;
 use regex::Regex;
 
 impl ClientHello {
-    fn new(name: String, exp_ver: f32) -> Self {
+    pub fn new(name: String, exp_ver: f32) -> Self {
         ClientHello {
             name: name,
             expected_version: exp_ver,
@@ -15,7 +15,7 @@ impl FcpRequest for ClientHello {
         return format!(
             "ClientHello\n\
              Name={}\n\
-             ExpectedVersion={}\n\
+             ExpectedVersion={:?}\n\
              EndMessage\n\n",
             self.name, self.expected_version
         );
@@ -176,7 +176,7 @@ fn is_keypair_parsing() {
     )
 }
 
-trait FcpParser<T> {
+pub trait FcpParser<T> {
     fn parse(palin: &str) -> Option<T>;
 }
 impl FcpParser<SSK> for SSK {
@@ -393,7 +393,7 @@ impl FcpRequest for ClientPut {
 }
 
 impl ClientPut {
-    fn new_default(uri: SSK, filename: &str, identifier: &str, data: &str) -> ClientPut {
+    pub fn new_default(uri: SSK, filename: &str, identifier: &str, data: &str) -> ClientPut {
         ClientPut {
             uri: uri,
             data_length: data.len(),

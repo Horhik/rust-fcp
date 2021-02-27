@@ -1,5 +1,6 @@
 mod types;
-use types::fcp_types;
+pub use types::client;
+pub use types::node;
 
 #[cfg(test)]
 mod tests {
