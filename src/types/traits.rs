@@ -1,7 +1,6 @@
 
 pub trait FcpRequest {
     fn convert(&self) -> String;
-
     fn fcp_wrap(&self, prefix: &str, postfix: &str) -> String {
         format!("{}{}{}", prefix, self.convert(), postfix)
     }

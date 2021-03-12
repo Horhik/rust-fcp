@@ -20,6 +20,8 @@ pub enum VisibilityLevel {
     Yes,
 }
 pub enum VerbosityPut {
+
+
     SimpleProgress,
     ExpectedHashes,
     PutFetchable,
@@ -61,11 +63,19 @@ fn is_berbosity_put_converting() {
 }
 
 pub enum VerbosityGet {
+    /// 0: report when complete
+    Report,
+    /// 1: SimpleProgress messages
     SimpleProgress,
+    /// 2: SendingToNetwork messages
     SendingToNetwork,
+    /// 4: CompatibilityMode messages (since 1255)
     CompatibilityMode,
+    /// 8: ExpectedHashes messages (since 1255)
     ExpectedHashes,
+    /// 32: ExpectedMIME messages (since 1307)
     ExpectedMIME,
+    /// 64: ExpectedDataLength messages (since 1307)
     ExpectedDataLength,
 }
 
