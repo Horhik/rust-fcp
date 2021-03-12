@@ -1,3 +1,4 @@
+use crate::types::traits::*;
 pub use std::ffi::OsStr;
 pub use std::net::Ipv4Addr;
 pub use std::path::Path;
@@ -153,19 +154,6 @@ fn is_upload_from_converting() {
     );
     assert_eq!(fcp_types_unwrap::<Persistence>(None), "".to_string());
 }
-
-pub enum ReturnType {
-    Direct,
-    None,
-    Disk,
-}
-
-impl FcpRequest for ReturnType {
-    fn convert(&self) -> String {
-        unimplemented!();
-    }
-}
-
 pub enum NumOrNone {
     None,
     Num(u32),
@@ -255,25 +243,5 @@ impl FcpRequest for bool {
         } else {
             "false".to_string()
         }
-    }
-}
-
-pub trait FcpRequest {
-    fn convert(&self) -> String;
-
-    fn fcp_wrap(&self, prefix: &str, postfix: &str) -> String {
-        format!("{}{}{}", prefix, self.convert(), postfix)
-    }
-}
-pub fn fcp_types_unwrap<T: FcpRequest>(fcp_type: Option<&T>) -> String {
-    match fcp_type {
-        Some(val) => val.convert(),
-        None => String::from(""),
-    }
-}
-pub fn to_fcp_unwrap<T: FcpRequest>(prefix: &str, fcp_type: &Option<T>, postfix: &str) -> String {
-    match fcp_type {
-        Some(val) => val.fcp_wrap(&prefix, &postfix),
-        None => String::from(""),
     }
 }

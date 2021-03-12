@@ -1,4 +1,6 @@
 use super::types::*;
+use crate::types::traits::*;
+use crate::types::{SSKKeypair, SSK, ReturnType};
 use regex::Regex;
 
 impl ClientHello {
@@ -32,7 +34,7 @@ fn client_hello_converts() {
     let hello = ClientHello::new("user name".to_string(), 2.0);
     assert_eq!(
         hello.convert(),
-        "ClientHello\nName=user name\nExpectedVersion=2\nEndMessage\n\n"
+        "ClientHello\nName=user name\nExpectedVersion=2.0\nEndMessage\n\n"
     );
 }
 
@@ -104,44 +106,6 @@ impl FcpRequest for GenerateSSK {
     }
 }
 
-#[derive(Debug, PartialEq)]
-pub struct SSK {
-    sign_key: String,
-    decrypt_key: String,
-    settings: Option<String>,
-}
-#[derive(Debug, PartialEq)]
-pub struct USK {
-    ssk: SSK,
-    index: i32,
-}
-
-#[derive(Debug, PartialEq)]
-pub struct SSKKeypair {
-    insert_uri: SSK,
-    request_uri: SSK,
-    identifier: String,
-}
-
-impl FcpParser<SSKKeypair> for SSKKeypair {
-    fn parse(plain: &str) -> Option<SSKKeypair> {
-        let reg = Regex::new(
-            r"^SSKKeypair\nIdentifier=(.*)\nInsertURI=(.*)\nRequestURI=(.*)\nEndMessage",
-        )
-        .unwrap();
-        println!("{:?}", reg);
-        let res = reg.captures(plain).unwrap();
-        let identifier = res[1].to_string();
-        let insert_uri = SSK::parse(&res[2]).unwrap();
-        let request_uri = SSK::parse(&res[3]).unwrap();
-        return Some(SSKKeypair {
-            insert_uri: insert_uri,
-            request_uri: request_uri,
-            identifier: identifier,
-        });
-    }
-}
-
 //SSK@Rgt0qM8D24DltliV2-JE9tYLcrgGAKeDwkz41I3JBPs,p~c8c7FXcJjhcf2vA-Xm0Mjyw1o~xn7L2-T8zlBA1IU,AQECAAE/
 //SSK@uKTwaQIXNgsCYKLekb51t3pZ6A~PTP7nuCxRVZEMtCQ,p~c8c7FXcJjhcf2vA-Xm0Mjyw1o~xn7L2-T8zlBA1IU,AQACAAE/
 /*
@@ -176,9 +140,6 @@ fn is_keypair_parsing() {
     )
 }
 
-pub trait FcpParser<T> {
-    fn parse(palin: &str) -> Option<T>;
-}
 impl FcpParser<SSK> for SSK {
     fn parse(plain: &str) -> Option<SSK> {
         let reg1 = Regex::new(r".*?SSK@([a-zA-z0-9~-]*),([a-zA-Z0-9-~]*),([A-Z]*)").unwrap();
@@ -454,7 +415,6 @@ fn is_client_put_converting() {
 }
 
 pub struct ClientGet {
-    message_name: String,
     ignore_ds: Option<bool>,
     ds_only: Option<bool>,
     uri: String, //FIXME freenet uri type
@@ -496,10 +456,35 @@ BinaryBlob=false
 FilterData=true
 EndMessage
 */
+impl ClientGet {
+    pub fn new_default(uri: SSK, identifier: &str, return_type: ReturnType) -> ClientGet {
+        ClientGet {
+            ignore_ds: None,
+            ds_only: None,
+            uri: uri.convert(), //FIXME freenet uri type
+            identifier: identifier.to_string(),
+            verbosity: None,
+            max_size: None,
+            max_temp_size: None,
+            max_retries: None,
+            priority_class: None,
+            persistence: None,
+            client_token: None,
+            global: None,
+            return_type: Some(return_type),
+            binary_blob: None,
+            filter_data: None,
+            allowed_mime_types: None,
+            filename: None,
+            temp_filename: None,
+            real_time_flag: None,
+            initial_metadata_data_length: None,
+        }
+    }
+}
 
 impl FcpRequest for ClientGet {
     fn convert(&self) -> String {
-        unimplemented!();
         format!(
             "ClientGet\n\
                  {}\
