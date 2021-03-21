@@ -72,6 +72,10 @@ pub enum ReturnType {
 
 impl FcpRequest for ReturnType {
     fn convert(&self) -> String {
-        unimplemented!();
+        match self {
+            ReturnType::Direct => "direct".to_string(),
+            ReturnType::Disk => "disk".to_string(),
+            ReturnType::None => "none".to_string(),
+        }
     }
 }
