@@ -1,3 +1,5 @@
+# REPO MOVED TO [hole-chat organization](https://github.com/hole-chat/rust-fcp)
+
 [![Build](https://github.com/Horhik/rust-fcp/actions/workflows/build.yml/badge.svg)](https://github.com/Horhik/rust-fcp/actions/workflows/build.yml) [![Tests](https://github.com/Horhik/rust-fcp/actions/workflows/tests.yml/badge.svg?event=push)](https://github.com/Horhik/rust-fcp/actions/workflows/tests.yml)
 
 [![dependency status](https://deps.rs/repo/github/horhik/rust-fcp/status.svg)](https://deps.rs/repo/github/rust-fcp/rust-fcp)
